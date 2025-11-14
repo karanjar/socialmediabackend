@@ -5,3 +5,9 @@ type Usercreate struct {
 	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required, min=8"`
 }
+
+type Userupdate struct {
+	Name     string `json:"name" validate:"omitempty,max=100"`
+	Email    string `json:"email" validate:"omitempty,email"`
+	Password string `json:"password" validate:"omitempty,min=8"`
+}

@@ -7,8 +7,9 @@ import (
 )
 
 func Setup() {
-
-	database.Connect()
+	if err := database.Connect(); err != nil {
+		log.Fatal(err)
+	}
 	server.Setup()
 	app := server.New()
 

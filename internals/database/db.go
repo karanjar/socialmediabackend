@@ -2,37 +2,43 @@ package database
 
 import (
 	"fmt"
-	friendship "socialmediabackend/models/friendship"
-	"socialmediabackend/models/posts"
-	"socialmediabackend/models/users"
+	"log"
+	"os"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/joho/godotenv"
+	"github.com/supabase-community/supabase-go"
 )
 
-var DB *gorm.DB
+var SupabaseClient *supabase.Client
 
-func Connect() {
-	dsn := "user=dustin password=12345 dbname=socialmedia sslmode=disable"
+func Connect() error {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+		return err
+	}
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	supabaseURL := os.Getenv("SUPABASE_URL")
+	supabaseKey := os.Getenv("SUPABASE_KEY")
+
+	if supabaseURL == "" || supabaseKey == "" {
+		log.Fatal("SUPABASE_URL or SUPABASE_KEY missing in .env")
+	}
+
+	client, err := supabase.NewClient(supabaseURL, supabaseKey, &supabase.ClientOptions{})
 	if err != nil {
-		fmt.Printf("unable to open  database: %v", err)
-		panic(err)
+		log.Fatal("Failed to initialize Supabase client:", err)
+		return err
 	}
-	sqlDB, err := db.DB()
+
+	SupabaseClient = client // assign before using
+
+	// Connectivity test with proper Limit args
+	_, _, err = SupabaseClient.From("users").Select("*", "exact", false).Limit(1, "").Execute()
 	if err != nil {
-		fmt.Printf("unable to get sql database from gorm,err: %v", err)
-		panic(err)
-
+		log.Println("Supabase connectivity test failed:", err)
+		return err
 	}
 
-	if err := sqlDB.Ping(); err != nil {
-		fmt.Printf("unable to connect database,error: %v", err)
-		panic(err)
-	}
-	DB = db
-	DB.AutoMigrate(&users.Users{}, &friendship.Friendship{}, &posts.Post{})
-
-	fmt.Println("Database connected successfully")
+	fmt.Println("Connected to Supabase client")
+	return nil
 }

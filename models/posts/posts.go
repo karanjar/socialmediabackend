@@ -8,11 +8,11 @@ import (
 )
 
 type Post struct {
-	ID        uuid.UUID `gorm:"primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
+	ID        uuid.UUID `json:"id"`
 	Content   string    `json:"content"`
 	UserID    uuid.UUID `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
-	User users.Users `gorm:"foreignkey:UserID;references:ID" json:"user"`
+	User users.Users `json:"user"`
 }

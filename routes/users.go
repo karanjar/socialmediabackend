@@ -1,13 +1,16 @@
 package routes
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"socialmediabackend/controllers"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 func Users(r fiber.Router) {
 	users := r.Group("/users")
 
-	users.Post("/", nil)
-	users.Get("/", nil)
-
-	users.Put("/:id", nil)
-	users.Delete("/:id", nil)
+	users.Post("/", controllers.Add)
+	users.Get("/:id", controllers.GetByID)
+	users.Put("/:id", controllers.Update)
+	users.Delete("/:id", controllers.Delete)
 }

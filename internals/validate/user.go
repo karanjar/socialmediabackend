@@ -17,6 +17,7 @@ func Users(s interface{}) error {
 		for _, errs := range err.(validator.ValidationErrors) {
 			fmt.Println("Validation Error:", errs.Field())
 			fmt.Println(errs.Type())
+			fmt.Println(errs.Tag())
 		}
 
 		return err

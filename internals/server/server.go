@@ -5,22 +5,18 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
-var app *fiber.App
-
 func New() *fiber.App {
-	return app
-}
-
-func Setup() {
-	app = fiber.New(fiber.Config{
+	app := fiber.New(fiber.Config{
 		ErrorHandler: ErrorHandler,
 		BodyLimit:    16 * 1024 * 1024,
 	})
 
-	defer app.Use(NotFoundHandler)
-	defer app.Use(recover.New())
-
+	// Middleware
 	Middleware(app)
-	Addroutes(app)
 
+	// Recovery and 404
+	app.Use(recover.New())
+	app.Use(NotFoundHandler)
+
+	return app
 }

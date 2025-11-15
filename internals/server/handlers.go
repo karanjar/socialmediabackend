@@ -19,7 +19,6 @@ var NotFoundHandler = func(ctx *fiber.Ctx) error {
 }
 
 func Addroutes(app *fiber.App) {
-	baseRoute := app.Group("/socio")
-
-	routes.Users(baseRoute)
+	baseRoute := app.Group("/socio") // fiber.Router
+	routes.Users(baseRoute)          //  works now
 }

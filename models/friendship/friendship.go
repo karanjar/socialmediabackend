@@ -2,16 +2,20 @@ package friendship
 
 import (
 	"socialmediabackend/models/users"
+	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type Friendship struct {
-	gorm.Model
-	UserID       uuid.UUID `gorm:"uniqueIndex:idx_user_friend" json:"user_id"`
-	FriendshipID uuid.UUID `gorm:"uniqueIndex:idx_user_friend" json:"friendship_id"`
+	ID           uuid.UUID `json:"id"`
+	UserID       uuid.UUID ` json:"user_id"`
+	FriendshipID uuid.UUID ` json:"friendship_id"`
 
-	User       users.Users `gorm:"foreignkey:UserID;references:ID" json:"user"`
-	Friendship users.Users `gorm:"foreignKey:FriendshipID;references:ID" json:"-"`
+	Status    string    `json:"status"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+
+	User       users.Users `json:"user"`
+	Friendship users.Users ` json:"friend"`
 }

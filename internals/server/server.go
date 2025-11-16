@@ -16,7 +16,7 @@ func New() *fiber.App {
 
 	// Recovery and 404
 	app.Use(recover.New())
-	app.Use(NotFoundHandler)
+	//app.Use(NotFoundHandler)
 
 	return app
 }

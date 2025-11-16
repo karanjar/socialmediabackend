@@ -14,7 +14,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// UserService struct (stateless)
 type UserService struct{}
 
 // Constructor
@@ -22,7 +21,7 @@ func NewUserService() *UserService {
 	return &UserService{}
 }
 
-// ===== CREATE USER =====
+// CREATE USER
 func (s *UserService) CreateUser(ctx context.Context, input dto.Usercreate) (*users.Users, error) {
 	// Generate UUID
 	id := uuid.New()

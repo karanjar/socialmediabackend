@@ -1,7 +1,8 @@
 package server
 
 import (
-	"socialmediabackend/routes"
+	"socialmediabackend/routes/friendship"
+	"socialmediabackend/routes/users"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -19,6 +20,7 @@ func ErrorHandler(c *fiber.Ctx, err error) error {
 //}
 
 func Addroutes(app *fiber.App) {
-	baseRoute := app.Group("/socio") // fiber.Router
-	routes.Users(baseRoute)          //  works now
+	baseRoute := app.Group("/socio")
+	users.Users(baseRoute)
+	friendship.Friendships(baseRoute)
 }

@@ -1,4 +1,4 @@
-package controllers
+package users
 
 import (
 	"socialmediabackend/internals/dto"
@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// ===== CREATE USER =====
+// Add USER
 func Add(c *fiber.Ctx) error {
 	ctx := c.UserContext()
 	var input dto.Usercreate
@@ -31,7 +31,7 @@ func Add(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(createdUser)
 }
 
-// ===== GET USER BY ID =====
+// GetByID users
 func GetByID(c *fiber.Ctx) error {
 	ctx := c.UserContext()
 	id := c.Params("id")
@@ -50,7 +50,23 @@ func GetByID(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
-// ===== UPDATE USER =====
+// Get All user
+func GetAll(c *fiber.Ctx) error {
+	ctx := c.UserContext()
+	us := services.NewUserService()
+	users, err := us.GetAllUsers(ctx)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	for i := range users {
+		users[i].Password = "*****"
+	}
+	return c.JSON(users)
+}
+
+// Update USER
 func Update(c *fiber.Ctx) error {
 	ctx := c.UserContext()
 	id := c.Params("id")
@@ -78,7 +94,7 @@ func Update(c *fiber.Ctx) error {
 	return c.JSON(updatedUser)
 }
 
-// ===== DELETE USER =====
+// Delete USER
 func Delete(c *fiber.Ctx) error {
 	ctx := c.UserContext()
 	id := c.Params("id")

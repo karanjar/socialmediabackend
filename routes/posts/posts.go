@@ -1,4 +1,4 @@
-package routes
+package posts
 
 import "github.com/gofiber/fiber/v2"
 

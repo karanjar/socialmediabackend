@@ -73,7 +73,7 @@ func (s *UserService) CreateUser(ctx context.Context, input dto.Usercreate) (*us
 	return &result[0], nil
 }
 
-// ===== GET USER BY ID =====
+// GET USER BY ID
 func (s *UserService) GetUserByID(ctx context.Context, id string) (*users.Users, error) {
 	data, _, err := database.SupabaseClient.
 		From("users").
@@ -96,7 +96,25 @@ func (s *UserService) GetUserByID(ctx context.Context, id string) (*users.Users,
 	return &result[0], nil
 }
 
-// ===== UPDATE USER =====
+// Get All user
+func (s *UserService) GetAllUsers(ctx context.Context) ([]users.Users, error) {
+	data, _, err := database.SupabaseClient.
+		From("users").
+		Select("*", "exact", false).
+		Execute()
+
+	if err != nil {
+		return nil, fmt.Errorf("supabase get error: %w", err)
+	}
+	var result []users.Users
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, fmt.Errorf("json decode error: %w", err)
+	}
+
+	return result, nil
+}
+
+// UPDATE USER
 func (s *UserService) UpdateUser(ctx context.Context, id string, input dto.Userupdate) (*users.Users, error) {
 	update := map[string]interface{}{
 		"name":       input.Name,

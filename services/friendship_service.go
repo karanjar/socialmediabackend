@@ -19,7 +19,9 @@ func NewFriendshipService() *FriendshipService {
 	return &FriendshipService{}
 }
 
-func (s *FriendshipService) sendFriendrequest(ctx context.Context, input dto.FriendsCreate) (*friendship.Friendship, error) {
+//SEND REQUEST / UPDATE FRIENDSHIP
+
+func (s *FriendshipService) SendFriendrequest(ctx context.Context, input dto.FriendsCreate) (*friendship.Friendship, error) {
 
 	if input.UserID == input.FriendID {
 		return nil, errors.New("you cannot send friendship to your self ")
@@ -49,12 +51,13 @@ func (s *FriendshipService) sendFriendrequest(ctx context.Context, input dto.Fri
 	}
 
 	data, _, err := database.SupabaseClient.
-		From("friendship").
+		From("friendships").
 		Insert(records, false, "", "representation", "").
 		Execute()
 	if err != nil {
 		return nil, fmt.Errorf("superbase create friendship: %w", err)
 	}
+
 	var result []friendship.Friendship
 	if err := json.Unmarshal(data, &result); err != nil {
 		return nil, fmt.Errorf("json decoded error: %w", err)
@@ -66,4 +69,97 @@ func (s *FriendshipService) sendFriendrequest(ctx context.Context, input dto.Fri
 
 	return &result[0], nil
 
+}
+
+//GETTING FRIENDS
+
+func (s *FriendshipService) Getfriends(ctx context.Context, userID uuid.UUID) (*friendship.Friendship, error) {
+	useridstr := userID.String()
+
+	//filtering users
+	selectQuery := "*, user:user_id(*), friend:friendship_id(*)"
+
+	//combining filtered users with accepted status
+	orFilter := fmt.Sprintf("user_id.eq.%s,friendship_id.eq.%s", useridstr, useridstr)
+	data, _, err := database.SupabaseClient.
+		From("friendships").
+		Select(selectQuery, "exact", false).
+		Eq("status", "accepted").
+		Or(orFilter, "").
+		Execute()
+
+	if err != nil {
+		return nil, fmt.Errorf("error superbase get friends: %w", err)
+	}
+	var result []friendship.Friendship
+
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, fmt.Errorf("json decoded error: %w", err)
+	}
+	if len(result) == 0 {
+		return nil, nil
+	}
+	for i := range result {
+		result[i].User.Password = ""
+		result[i].Friendship.Password = ""
+	}
+	return &result[0], nil
+}
+
+// Accepting friendrequest/Update friendship
+func (s *FriendshipService) Updatefriends(ctx context.Context, userID, friendID uuid.UUID) (*friendship.Friendship, error) {
+
+	useridstr := userID.String()
+	friendidstr := friendID.String()
+
+	records := map[string]interface{}{
+		"status":     "accepted",
+		"updated_at": time.Now(),
+	}
+
+	Filter := fmt.Sprintf("and(user_id.eq.%s,friendship_id.eq.%s),and(user_id.eq.%s,friendship_id.eq.%s)", useridstr, friendidstr, useridstr, friendidstr)
+
+	data, _, err := database.SupabaseClient.
+		From("friendships").
+		Update(records, "representation", "").
+		Or(Filter, "").
+		Execute()
+
+	if err != nil {
+		return nil, fmt.Errorf("error superbase update friends: %w", err)
+	}
+
+	var result []friendship.Friendship
+
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, fmt.Errorf("json decoded error: %w", err)
+	}
+	if len(result) == 0 {
+		return nil, nil
+	}
+	return &result[0], nil
+
+}
+func (s *FriendshipService) DeleteFriendship(ctx context.Context, userID, friendID uuid.UUID) error {
+	useridstr := userID.String()
+	friendidstr := friendID.String()
+
+	//filtered := fmt.Sprintf("and(user_id.eq.%s,friend_id.eq.%s)", useridstr, friendidstr)
+
+	filter := fmt.Sprintf("or(and(user_id.eq.%s,friendship_id.eq.%s),and(user_id.eq.%s,friendship_id.eq.%s))", useridstr, friendidstr, friendidstr, useridstr)
+
+	_, count, err := database.SupabaseClient.
+		From("friendships").
+		Delete("", "exact").
+		Or(filter, "").
+		Execute()
+
+	if err != nil {
+		return fmt.Errorf("error superbase delete friendship: %w", err)
+	}
+
+	if count == 0 {
+		return errors.New("no friendship found")
+	}
+	return nil
 }

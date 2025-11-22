@@ -10,6 +10,7 @@ import (
 type Post struct {
 	ID        uuid.UUID `json:"id"`
 	Content   string    `json:"content"`
+	ImageUrl  string    `json:"imageurl"`
 	UserID    uuid.UUID `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

@@ -2,6 +2,7 @@ package server
 
 import (
 	"socialmediabackend/routes/friendship"
+	"socialmediabackend/routes/posts"
 	"socialmediabackend/routes/users"
 
 	"github.com/gofiber/fiber/v2"
@@ -23,4 +24,5 @@ func Addroutes(app *fiber.App) {
 	baseRoute := app.Group("/socio")
 	users.Users(baseRoute)
 	friendship.Friendships(baseRoute)
+	posts.Posts(baseRoute)
 }

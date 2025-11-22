@@ -85,7 +85,7 @@ func (s *UserService) GetUserByID(ctx context.Context, id string) (*users.Users,
 	}
 
 	var result []users.Users
-	if err := json.Unmarshal(data, &result); err != nil {
+	if err = json.Unmarshal(data, &result); err != nil {
 		return nil, fmt.Errorf("json decode error: %w", err)
 	}
 
@@ -107,7 +107,7 @@ func (s *UserService) GetAllUsers(ctx context.Context) ([]users.Users, error) {
 		return nil, fmt.Errorf("supabase get error: %w", err)
 	}
 	var result []users.Users
-	if err := json.Unmarshal(data, &result); err != nil {
+	if err = json.Unmarshal(data, &result); err != nil {
 		return nil, fmt.Errorf("json decode error: %w", err)
 	}
 
@@ -140,7 +140,7 @@ func (s *UserService) UpdateUser(ctx context.Context, id string, input dto.Useru
 	}
 
 	var result []users.Users
-	if err := json.Unmarshal(data, &result); err != nil {
+	if err = json.Unmarshal(data, &result); err != nil {
 		return nil, fmt.Errorf("json decode error: %w", err)
 	}
 

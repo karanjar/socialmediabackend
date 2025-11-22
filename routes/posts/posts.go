@@ -1,14 +1,20 @@
 package posts
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"socialmediabackend/controllers/posts"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 func Posts(r fiber.Router) {
 	postRoute := r.Group("/posts")
 
-	postRoute.Get("/", nil)
-	postRoute.Get("/", nil)
+	postRoute.Post("/", posts.AddPosts)
 
-	postRoute.Put("/:id", nil)
-	postRoute.Delete("/:id", nil)
+	postRoute.Get("/", posts.GetAllPosts)
+	postRoute.Get("/:id", posts.GetPostById)
+
+	postRoute.Put("/:id", posts.UpdatePostById)
+	postRoute.Delete("/:id", posts.DeletePostById)
 
 }

@@ -8,6 +8,7 @@ import (
 	"socialmediabackend/internals/database"
 	"socialmediabackend/internals/dto"
 	"socialmediabackend/models/friendship"
+	"socialmediabackend/models/users"
 	"time"
 
 	"github.com/google/uuid"
@@ -66,14 +67,38 @@ func (s *FriendshipService) SendFriendrequest(ctx context.Context, input dto.Fri
 	if len(result) == 0 {
 		return nil, errors.New("no friendship found/inserted returned no friendship")
 	}
-
+	name := users.Users{}
+	fmt.Printf("you have friend request from :%v", name.Name)
 	return &result[0], nil
 
 }
 
-//GETTING FRIENDS
+// GET ALL FRIENDS
+func (s FriendshipService) Getfriends(ctx context.Context, userId uuid.UUID) ([]friendship.Friendship, error) {
+	idStr := userId.String()
 
-func (s *FriendshipService) Getfriends(ctx context.Context, userID uuid.UUID) (*friendship.Friendship, error) {
+	orFilter := fmt.Sprintf("user_id.eq.%s,friendship_id.eq.%s", idStr, idStr)
+
+	data, _, err := database.SupabaseClient.
+		From("friendships").
+		Select("*,user:user_id(*),friend:friendship_id(*)", "exact", false).
+		Or(orFilter, "").
+		Eq("status", "accepted").
+		Execute()
+
+	if err != nil {
+		return nil, fmt.Errorf("superbase get friends: %w", err)
+	}
+	var result []friendship.Friendship
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, fmt.Errorf("json decoded error: %w", err)
+	}
+	return result, nil
+}
+
+//GETTING FRIEND BT ID
+
+func (s *FriendshipService) GetfriendById(ctx context.Context, userID uuid.UUID) (*friendship.Friendship, error) {
 	useridstr := userID.String()
 
 	//filtering users

@@ -32,7 +32,35 @@ func AddFriend(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{})
 }
 
-//Getting friends
+// GETTING ALL FRIENDS
+func GetAllFriends(c *fiber.Ctx) error {
+	ctx := c.UserContext()
+	idStr := c.Params("userID")
+	userId, err := uuid.Parse(idStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "userId is not a valid uuid"})
+	}
+	fs := services.NewFriendshipService()
+	friend, err := fs.Getfriends(ctx, userId)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	if len(friend) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "friend not found",
+			"data":  []string{},
+		})
+	}
+	for i := range friend {
+		friend[i].User.Password = ""
+		friend[i].Friendship.Password = ""
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": friend})
+
+}
+
+//Getting By Id friends
 
 func GetFriends(c *fiber.Ctx) error {
 	ctx := c.UserContext()
@@ -46,7 +74,7 @@ func GetFriends(c *fiber.Ctx) error {
 	}
 
 	fs := services.NewFriendshipService()
-	friends, err := fs.Getfriends(ctx, iduuid)
+	friends, err := fs.GetfriendById(ctx, iduuid)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),

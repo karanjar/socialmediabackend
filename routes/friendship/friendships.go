@@ -7,7 +7,7 @@ import (
 )
 
 func Friendships(r fiber.Router) {
-	postRoute := r.Group("/friends")
+	postRoute := r.Group("/friendships")
 
 	postRoute.Post("/", friendship.AddFriend)
 	postRoute.Get("/:userID", friendship.GetAllFriends)
